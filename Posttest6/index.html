@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tupperware Sales</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="light-mode">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#home">Tupperware</a>
+        </div>
+
+        <button class="hamburger" id="hamburger">&#9776;</button>
+
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about-us.html">About Us</a></li>
+        </ul>
+
+        <button id="themeToggle"><i class="fa-solid fa-sun fa-xl"></i></button>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Tupperware</h1>
+            <p>For all your eras in life</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="products" id="products">
+            <h2>Produk Terbaik Kami</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="produk-1.webp" alt="Product 1">
+                    <h3>Eco Bottle</h3>
+                    <p>Eco-friendly bottles for everyday hydration.</p>
+                </div>
+                <div class="product-card">
+                    <img src="produk-2.webp" alt="Product 2">
+                    <h3>Modular Containers</h3>
+                    <p>Stackable containers for ultimate kitchen organization.</p>
+                </div>
+                <div class="product-card">
+                    <img src="produk-3.webp" alt="Product 3">
+                    <h3>Lunch Box Set</h3>
+                    <p>Perfect for carrying your meals on the go.</p>
+                </div>
+            </div>
+            <button>Lihat produk lainnya</button>
+        </section>
+
+        <!-- Form Input Section -->
+        <section class="form-section">
+            <h2>Form Input</h2>
+            <form id="inputForm">
+                <div>
+                    <label for="name">Nama:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div>
+                    <label for="age">Umur:</label>
+                    <input type="number" id="age" required>
+                </div>
+                <div>
+                    <label for="password">Kata Sandi:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Kirim</button>
+            </form>
+            <div id="result" class="result"></div>
+        </section>
+
+        <!-- File Upload Section -->
+        <section class="upload-section">
+            <h2>Upload File</h2>
+            <form id="fileForm" enctype="multipart/form-data">
+                <div>
+                    <label for="file">Pilih file untuk diunggah:</label>
+                    <input type="file" id="file" name="file" required>
+                </div>
+                <button type="submit">Unggah File</button>
+            </form>
+            <div id="fileList">
+                <!-- List file akan muncul di sini -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Tupperware Sales. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Form Input
+        const inputForm = document.getElementById('inputForm');
+        const resultDiv = document.getElementById('result');
+
+        inputForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Mencegah refresh halaman
+
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const password = document.getElementById('password').value;
+
+            // Menampilkan hasil inputan
+            resultDiv.innerHTML = `
+                <h3>Hasil Inputan:</h3>
+                <p>Nama: ${name}</p>
+                <p>Umur: ${age}</p>
+                <p>Kata Sandi: ${password}</p>
+            `;
+
+            // Reset form
+            inputForm.reset();
+        });
+
+        // File Upload Handling
+        const fileForm = document.getElementById('fileForm');
+        const fileList = document.getElementById('fileList');
+
+        fileForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const fileName = formatFileName(file.name);
+                saveFile(file, fileName);
+                displayFiles();
+                fileForm.reset(); // Reset form setelah upload
+            }
+        });
+
+        // Fungsi untuk menyimpan file (misalnya ke localStorage)
+        function saveFile(file, fileName) {
+            const fileData = {
+                name: fileName,
+                content: URL.createObjectURL(file)  // Atau simpan di server
+            };
+            
+            let files = JSON.parse(localStorage.getItem('files')) || [];
+            files.push(fileData);
+            localStorage.setItem('files', JSON.stringify(files));
+        }
+
+        // Fungsi untuk menampilkan list file
+        function displayFiles() {
+            const files = JSON.parse(localStorage.getItem('files')) || [];
+            fileList.innerHTML = ''; // Kosongkan daftar sebelum render ulang
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.innerHTML = `
+                    <p>${file.name}</p>
+                    <button onclick="deleteFile(${index})">Hapus</button>
+                    <button onclick="downloadFile('${file.content}')">Unduh</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Fungsi untuk format penamaan file
+        function formatFileName(originalName) {
+            const date = new Date();
+            const formattedDate = date.toISOString().slice(0, 19).replace(/:/g, '.');
+            const fileExtension = originalName.split('.').pop();
+            return `${formattedDate}.${fileExtension}`;
+        }
+
+        // Fungsi untuk menghapus file
+        function deleteFile(index) {
+            let files = JSON.parse(localStorage.getItem('files')) || [];
+            files.splice(index, 1);
+            localStorage.setItem('files', JSON.stringify(files));
+            displayFiles();
+        }
+
+        // Fungsi untuk mengunduh file
+        function downloadFile(fileURL) {
+            const a = document.createElement('a');
+            a.href = fileURL;
+            a.download = true;
+            a.click();
+        }
+
+        // Panggil displayFiles saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', displayFiles);
+    </script>
+</body>
+
+</html>
